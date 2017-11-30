@@ -572,3 +572,58 @@ TEST_F(LibclangReparseTest, clang_parseTranslationUnit2FullArgv) {
   EXPECT_EQ(0U, clang_getNumDiagnostics(ClangTU));
   DisplayDiagnostics();
 }
+
+class LibclangMatcherTest : public LibclangParseTest {
+public:
+  std::vector<CXMatchResult> MatchResults;
+  static void MatchCallback(CXMatchResult Result, CXClientData ClientData)
+  {
+    auto Test = reinterpret_cast<LibclangMatcherTest*>(ClientData);
+    Test->MatchResults.emplace_back(clang_cloneMatchResult(Result));
+  }
+
+  ~LibclangMatcherTest()
+  {
+    for(auto & Result : MatchResults)
+    {
+      clang_disposeMatchResult(Result);
+    }
+  }
+};
+
+CINDEX_LINKAGE extern "C" CXCursor clang_getMatchResultCursor(
+  CXMatchResult Result, CXTranslationUnit TU, const char * ID);
+
+TEST_F(LibclangMatcherTest, Matchers)
+{
+  const char *HeaderTop = "#ifndef H\n#define H\nstruct Foo { int bar;";
+  const char *HeaderBottom = "\n};\n#endif\n";
+  const char *CppFile = "#include \"HeaderFile.h\"\nint main() {"
+                         " Foo foo; foo.bar = 7; }\n";
+  std::string HeaderName = "HeaderFile.h";
+  std::string CppName = "CppFile.cpp";
+  WriteFile(CppName, CppFile);
+  WriteFile(HeaderName, std::string(HeaderTop) + HeaderBottom);
+
+  ClangTU = clang_parseTranslationUnit(Index, CppName.c_str(), nullptr, 0,
+                                       nullptr, 0, TUFlags);
+  EXPECT_EQ(0U, clang_getNumDiagnostics(ClangTU));
+
+  auto Finder = clang_createMatchFinder();
+  clang_finderAddMatcher(Finder,
+                         "functionDecl(hasName(\"main\")).bind(\"root\")",
+                         &LibclangMatcherTest::MatchCallback,
+                         this);
+
+  clang_finderMatchAST(Finder,ClangTU);
+  EXPECT_EQ(1U, MatchResults.size());
+  clang_disposeMatchFinder(Finder);
+
+  auto Cursor = clang_getMatchResultCursor(MatchResults[0], ClangTU, "root");
+  EXPECT_EQ(0U, clang_isInvalid(clang_getCursorKind(Cursor)));
+  auto Spelling = clang_getCursorSpelling(Cursor);
+
+  EXPECT_STREQ("main", clang_getCString(Spelling));
+
+  clang_disposeString(Spelling);
+}

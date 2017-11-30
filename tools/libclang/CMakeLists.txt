@@ -7,6 +7,7 @@ set(SOURCES
   CIndexDiagnostic.cpp
   CIndexHigh.cpp
   CIndexInclusionStack.cpp
+  CIndexMatcher.cpp
   CIndexUSRs.cpp
   CIndexer.cpp
   CXComment.cpp
@@ -36,6 +37,7 @@ set(SOURCES
 set(LIBS
   clangAST
   clangBasic
+  clangDynamicASTMatchers
   clangFrontend
   clangIndex
   clangLex

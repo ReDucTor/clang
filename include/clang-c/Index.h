@@ -6300,10 +6300,91 @@ typedef enum CXVisitorResult (*CXFieldVisitor)(CXCursor C,
 CINDEX_LINKAGE unsigned clang_Type_visitFields(CXType T,
                                                CXFieldVisitor visitor,
                                                CXClientData client_data);
-
 /**
  * @}
  */
+
+/**
+ * \defgroup CINDEX_MATCHERS Matcher routines
+ *
+ * @{
+ */
+
+/**
+ * \brief An "Match finder"
+ */
+typedef struct CXMatchFinderImpl *CXMatchFinder;
+
+/**
+ * \brief An "Match result"
+ */
+typedef struct CXMatchResultImpl *CXMatchResult;
+
+/**
+ * \brief Called on every match by the \c CXMatchFinder
+ */
+typedef void (*CXMatchCallbackRun)(CXMatchResult result,
+                                   CXClientData client_data);
+
+/**
+ * \brief Clone match result
+ *
+ * \param Result the match result to clone
+ *
+ */
+CINDEX_LINKAGE CXMatchResult clang_cloneMatchResult(CXMatchResult Result);
+
+/**
+ * \brief Destroy match result
+ *
+ * \param Result the match result to destroy
+ *
+ */
+CINDEX_LINKAGE void clang_disposeMatchResult(CXMatchResult Result);
+
+/**
+ * \brief Create match finder
+ *
+ */
+CINDEX_LINKAGE CXMatchFinder clang_createMatchFinder();
+
+
+/**
+ * \brief Add a matcher to a match finder
+ *
+ * \param Find the finder to add the matcher to
+ *
+ * \param Matcher the matcher to add
+ *
+ * \param Callback the callback to be called when Matcher is found
+ *
+ * \param ClientData pointer data supplied by the client, which will
+ * be passed to the callback each time it is invoked.
+ */
+CINDEX_LINKAGE void clang_finderAddMatcher(CXMatchFinder Finder,
+                                           const char *Matcher,
+                                           CXMatchCallbackRun Callback,
+                                           CXClientData ClientData);
+
+/**
+ * \brief Destroy match finder
+ *
+ * \param Finder the finder to destroy
+ *
+ */
+CINDEX_LINKAGE void clang_disposeMatchFinder(CXMatchFinder Finder);
+
+
+/**
+ * \brief Finds all matches in the given translation unit
+ *
+ * \param Finder the finder to use for matching
+ *
+ * \param TU translation unit to search
+ */
+CINDEX_LINKAGE void clang_finderMatchAST(CXMatchFinder Finder,
+                                         CXTranslationUnit TU);
+
 
 /**
  * @}

@@ -101,6 +101,7 @@ clang_HTMLTagComment_getAsString
 clang_FullComment_getAsHTML
 clang_FullComment_getAsXML
 clang_annotateTokens
+clang_cloneMatchResult
 clang_codeCompleteAt
 clang_codeCompleteGetContainerKind
 clang_codeCompleteGetContainerUSR
@@ -116,6 +117,7 @@ clang_constructUSR_ObjCProperty
 clang_constructUSR_ObjCProtocol
 clang_createCXCursorSet
 clang_createIndex
+clang_createMatchFinder
 clang_createTranslationUnit
 clang_createTranslationUnit2
 clang_createTranslationUnitFromSourceFile
@@ -130,6 +132,8 @@ clang_disposeCodeCompleteResults
 clang_disposeDiagnostic
 clang_disposeDiagnosticSet
 clang_disposeIndex
+clang_disposeMatchFinder
+clang_disposeMatchResult
 clang_disposeOverriddenCursors
 clang_disposeCXPlatformAvailability
 clang_disposeSourceRangeList
@@ -147,6 +151,8 @@ clang_findIncludesInFile
 clang_findIncludesInFileWithBlock
 clang_findReferencesInFile
 clang_findReferencesInFileWithBlock
+clang_finderAddMatcher
+clang_finderMatchAST
 clang_formatDiagnostic
 clang_free
 clang_getAddressSpace
@@ -229,6 +235,7 @@ clang_getInclusions
 clang_getInstantiationLocation
 clang_getLocation
 clang_getLocationForOffset
+clang_getMatchResultCursor
 clang_getModuleForFile
 clang_getNullCursor
 clang_getNullLocation
